@@ -16,14 +16,19 @@ void create_server(char *port)
     inet_aton("127.0.0.1", &myaddr.sin_addr);
     myaddr.sin_port = htons(atoi(port));
     bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
-    listen(sockfd, 10);
-    int cfd = accept(sockfd, (struct sockaddr*)&myaddr, (socklen_t*)&addrlen);
-    if (cfd < 0)
-        exit(84);
-    char *ip = inet_ntoa(myaddr.sin_addr);
-    int port_co = ntohs(myaddr.sin_port);
-    printf("Connection from %s:%i\n", ip, port_co);
-    write(cfd, "Hello World!!!\r\n", 16);
-    close(cfd);
+    listen(sockfd, 100);
+    while (1) {
+        int cfd = accept(sockfd, (struct sockaddr*)&myaddr, (socklen_t*)&addrlen);
+        if (cfd < 0)
+            exit(EXIT_FAILURE);
+        if (fork() == 0) {
+            char *ip = inet_ntoa(myaddr.sin_addr);
+            int port_co = ntohs(myaddr.sin_port);
+            printf("Connection from %s:%i\n", ip, port_co);
+            write(cfd, "Hello World!!!\r\n", 16);
+            close(cfd);
+        } else
+            close(cfd);
+    }
     close(sockfd);
 }
