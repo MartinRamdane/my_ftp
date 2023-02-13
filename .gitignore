@@ -1,0 +1,6 @@
+.vscode/
+.DS_Store
+*/.DS_Store
+myftp
+EPITECH-MyFTP-Protocol-(RFC959-Extract).txt
+test_ftp.sh
