@@ -1,0 +1,29 @@
+/*
+** EPITECH PROJECT, 2023
+** server.c
+** File description:
+** server
+*/
+
+#include "server.h"
+
+void create_server(char *port)
+{
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in myaddr;
+    int addrlen = sizeof(myaddr);
+    myaddr.sin_family = AF_INET;
+    inet_aton("127.0.0.1", &myaddr.sin_addr);
+    myaddr.sin_port = htons(atoi(port));
+    bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
+    listen(sockfd, 10);
+    int cfd = accept(sockfd, (struct sockaddr*)&myaddr, (socklen_t*)&addrlen);
+    if (cfd < 0)
+        exit(84);
+    char *ip = inet_ntoa(myaddr.sin_addr);
+    int port_co = ntohs(myaddr.sin_port);
+    printf("Connection from %s:%i\n", ip, port_co);
+    write(cfd, "Hello World!!!\r\n", 16);
+    close(cfd);
+    close(sockfd);
+}
