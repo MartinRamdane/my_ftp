@@ -9,16 +9,16 @@
 
 void create_server(char *port)
 {
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int sfd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in myaddr;
     int addrlen = sizeof(myaddr);
     myaddr.sin_family = AF_INET;
     inet_aton("127.0.0.1", &myaddr.sin_addr);
     myaddr.sin_port = htons(atoi(port));
-    bind(sockfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
-    listen(sockfd, 100);
+    bind(sfd, (struct sockaddr *)&myaddr, sizeof(myaddr));
+    listen(sfd, 100);
     while (1) {
-        int cfd = accept(sockfd, (struct sockaddr*)&myaddr, (socklen_t*)&addrlen);
+        int cfd = accept(sfd, (struct sockaddr*)&myaddr, (socklen_t*)&addrlen);
         if (cfd < 0)
             exit(EXIT_FAILURE);
         if (fork() == 0) {
@@ -30,5 +30,5 @@ void create_server(char *port)
         } else
             close(cfd);
     }
-    close(sockfd);
+    close(sfd);
 }
