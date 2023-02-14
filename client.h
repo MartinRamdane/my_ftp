@@ -5,9 +5,6 @@
 ** client
 */
 
-#ifndef CLIENt
-    #define CLIENT
-
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -16,6 +13,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+#ifndef CLIENT
+    #define CLIENT
 
 void create_client(char *ip, char *port);
 

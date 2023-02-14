@@ -7,67 +7,54 @@
 
 #include "server.h"
 
-void add_new_socket_to_array(int *client_socket, int cfd)
+void passv_command(int sd, struct sockaddr_in addr)
 {
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (client_socket[i] == 0) {
-            client_socket[i] = cfd;
-            // printf("Adding to list of sockets as %d\n" , i);
-            return;
-        }
-    }
-}
-
-void accept_socket(int m_sock, struct sockaddr_in addr, int addrl, int *cls)
-{
-    int cfd = accept(m_sock, (struct sockaddr*)&addr, (socklen_t*)&addrl);
-    if (cfd < 0)
-        exit(EXIT_FAILURE);
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in myaddr;
+    myaddr.sin_family = AF_INET;
     char *ip = inet_ntoa(addr.sin_addr);
-    int port_co = ntohs(addr.sin_port);
-    printf("Connection from %s:%i\n", ip, port_co);
-    write(cfd, "Hello World!!!\r\n", 16);
-    add_new_socket_to_array(cls, cfd);
+    inet_aton(ip, &myaddr.sin_addr);
+    int port1 = 20, port2 = 235;
+    int port = (port1 * 256) + port2;
+    myaddr.sin_port = htons(port);
+    bind(sock, (struct sockaddr *)&myaddr, sizeof(myaddr));
+    write(sd, "227 Entering Passive Mode (", 27);
+    char *token = strtok(ip, ".");
+    while (token != NULL) {
+        write(sd, token, strlen(token));
+        write(sd, ",", 1);
+        token = strtok(NULL, ".");
+    }
+    char int_str[5]; sprintf(int_str, "%d", port1);
+    write(sd, int_str, strlen(int_str)); write(sd, ",", 1);
+    sprintf(int_str, "%d", port2); write(sd, int_str, strlen(int_str));
+    write(sd, ")\r\n", 3);
 }
 
-void check_closing_socket(int sd, int *client_socket, int i)
+void port_command(void)
 {
-    char buffer[1025];
-    int valread;
-    if ((valread = read(sd, buffer, 1024)) == 0) {
-        // getpeername(sd, (struct sockaddr*)&myaddr, (socklen_t*)&addrlen);
-        // printf("Host disconnected, ip %s, port %d \n", inet_ntoa(myaddr.sin_addr), ntohs(myaddr.sin_port));
-        // printf("host disconected\n");
-        close(sd);
+    ;
+}
+
+void create_server(char *port)
+{
+    int client_socket[MAX_CLIENTS], max_sd;
+    for (int i = 0; i < MAX_CLIENTS; i++)
         client_socket[i] = 0;
-    } else {
-        buffer[valread] = '\0';
-        write(sd, buffer, strlen(buffer));
+    fd_set readfds; int master_socket = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in myaddr; int addrlen = sizeof(myaddr);
+    myaddr.sin_family = AF_INET; inet_aton("127.0.0.1", &myaddr.sin_addr);
+    myaddr.sin_port = htons(atoi(port));
+    bind(master_socket, (struct sockaddr *)&myaddr, sizeof(myaddr));
+    listen(master_socket, MAX_CLIENTS);
+    while (1) {
+        add_and_set_sockets(&readfds, &max_sd, master_socket, client_socket);
+        int ret_val = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+        if (ret_val <= 0)
+            perror("select()");
+        if (FD_ISSET(master_socket, &readfds))
+            accept_socket(master_socket, myaddr, addrlen, client_socket);
+        operations_on_sockets(&readfds, client_socket, myaddr);
     }
-}
-
-void do_operations_on_other_sockets(fd_set *readfds, int *client_socket)
-{
-    int sd;
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        sd = client_socket[i];
-        if (FD_ISSET(sd, readfds)) {
-            check_closing_socket(sd, client_socket, i);
-        }
-    }
-}
-
-void add_and_set_sockets(fd_set *readfds, int *m_sd, int m_sock, int *cl_sock)
-{
-    int sd;
-    FD_ZERO(readfds);
-    FD_SET(m_sock, readfds);
-    *m_sd = m_sock;
-    for (int i = 0 ; i < MAX_CLIENTS ; i++) {
-        sd = cl_sock[i];
-        if (sd > 0)
-            FD_SET(sd, readfds);
-        if (sd > *m_sd)
-            *m_sd = sd;
-    }
+    close(master_socket);
 }

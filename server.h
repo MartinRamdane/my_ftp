@@ -5,10 +5,7 @@
 ** server
 */
 
-#ifndef SERVER
-    #define SERVER
-
-#define MAX_CLIENTS 100
+#pragma once
 
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -20,9 +17,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define MAX_CLIENTS 100
+
 void create_server(char *port);
 void accept_socket(int m_sock, struct sockaddr_in addr, int addrl, int *cls);
-void do_operations_on_other_sockets(fd_set *readfds, int *client_socket);
+void operations_on_sockets(fd_set *readfds, int *cl, struct sockaddr_in addr);
 void add_and_set_sockets(fd_set *readfds, int *m_sd, int m_sock, int *cl_sock);
-
-#endif /* !SERVER */
+void passv_command(int sd, struct sockaddr_in addr);
+void port_command(void);

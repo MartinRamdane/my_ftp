@@ -7,25 +7,67 @@
 
 #include "server.h"
 
-void create_server(char *port)
+void add_new_socket_to_array(int *client_socket, int cfd)
 {
-    int client_socket[MAX_CLIENTS], max_sd;
-    for (int i = 0; i < MAX_CLIENTS; i++)
-        client_socket[i] = 0;
-    fd_set readfds; int master_socket = socket(AF_INET, SOCK_STREAM, 0);
-    struct sockaddr_in myaddr; int addrlen = sizeof(myaddr);
-    myaddr.sin_family = AF_INET; inet_aton("127.0.0.1", &myaddr.sin_addr);
-    myaddr.sin_port = htons(atoi(port));
-    bind(master_socket, (struct sockaddr *)&myaddr, sizeof(myaddr));
-    listen(master_socket, MAX_CLIENTS);
-    while (1) {
-        add_and_set_sockets(&readfds, &max_sd, master_socket, client_socket);
-        int ret_val = select(max_sd + 1, &readfds, NULL, NULL, NULL);
-        if (ret_val <= 0)
-            perror("select()");
-        if (FD_ISSET(master_socket, &readfds))
-            accept_socket(master_socket, myaddr, addrlen, client_socket);
-        do_operations_on_other_sockets(&readfds, client_socket);
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (client_socket[i] == 0) {
+            client_socket[i] = cfd;
+            return;
+        }
     }
-    close(master_socket);
+}
+
+void accept_socket(int m_sock, struct sockaddr_in addr, int addrl, int *cls)
+{
+    int cfd = accept(m_sock, (struct sockaddr*)&addr, (socklen_t*)&addrl);
+    if (cfd < 0)
+        exit(EXIT_FAILURE);
+    char *ip = inet_ntoa(addr.sin_addr);
+    int port_co = ntohs(addr.sin_port);
+    printf("Connection from %s:%i\n", ip, port_co);
+    write(cfd, "Hello World!!!\r\n", 16);
+    add_new_socket_to_array(cls, cfd);
+}
+
+void check_closing_socket(int sd, int *cl, int i, struct sockaddr_in addr)
+{
+    char buffer[1025];
+    int valread;
+    if ((valread = read(sd, buffer, 1024)) == 0) {
+        close(sd);
+        cl[i] = 0;
+    } else {
+        buffer[valread - 2] = '\0';
+        if (strcmp(buffer, "PASV") == 0)
+            passv_command(sd, addr);
+        if (strstr(buffer, "PORT")) {
+            port_command();
+        }
+    }
+}
+
+void operations_on_sockets(fd_set *readfds, int *cl, struct sockaddr_in addr)
+{
+    int sd;
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        sd = cl[i];
+        if (FD_ISSET(sd, readfds)) {
+            check_closing_socket(sd, cl, i, addr);
+        }
+    }
+}
+
+void add_and_set_sockets(fd_set *readfds, int *m_sd, int m_sock, int *cl_sock)
+{
+    int sd;
+    FD_ZERO(readfds);
+    FD_SET(m_sock, readfds);
+    *m_sd = m_sock;
+    for (int i = 0 ; i < MAX_CLIENTS ; i++) {
+        sd = cl_sock[i];
+        if (sd > 0)
+            FD_SET(sd, readfds);
+        if (sd > *m_sd)
+            *m_sd = sd;
+    }
 }
