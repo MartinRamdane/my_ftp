@@ -9,7 +9,7 @@ NAME = myftp
 
 SRC = *.c
 
-FLAGS = -Wall -Wextra
+FLAGS = -Wall -Wextra -g3
 
 all:
 	gcc -o $(NAME) $(SRC) $(FLAGS)
