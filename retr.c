@@ -37,6 +37,7 @@ void retr_command(clients_t **client, char *line)
     }
     write((*client)->data_sock, file, strlen(file));
     write((*client)->data_sock, "\r\n", 2);
+    free(file);
     close((*client)->data_sock);
     write((*client)->ctrl_sock, "226 Closing data connection.\r\n", 30);
     write((*client)->ctrl_sock, "Requested file action successful\r\n", 34);
