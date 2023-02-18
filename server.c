@@ -7,30 +7,6 @@
 
 #include "server.h"
 
-void passv_command(int sd, struct sockaddr_in addr)
-{
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    struct sockaddr_in myaddr;
-    myaddr.sin_family = AF_INET;
-    char *ip = inet_ntoa(addr.sin_addr);
-    inet_aton(ip, &myaddr.sin_addr);
-    int port1 = 20, port2 = 235;
-    int port = (port1 * 256) + port2;
-    myaddr.sin_port = htons(port);
-    bind(sock, (struct sockaddr *)&myaddr, sizeof(myaddr));
-    write(sd, "227 Entering Passive Mode (", 27);
-    char *token = strtok(ip, ".");
-    while (token != NULL) {
-        write(sd, token, strlen(token));
-        write(sd, ",", 1);
-        token = strtok(NULL, ".");
-    }
-    char int_str[5]; sprintf(int_str, "%d", port1);
-    write(sd, int_str, strlen(int_str)); write(sd, ",", 1);
-    sprintf(int_str, "%d", port2); write(sd, int_str, strlen(int_str));
-    write(sd, ")\r\n", 3);
-}
-
 void port_command(void)
 {
     ;
@@ -40,7 +16,7 @@ static void free_all_clients(clients_t *clients)
 {
     while (clients != NULL) {
         clients_t *tmp = clients->next;
-        close(clients->socket);
+        close(clients->ctrl_sock);
         free(clients);
         clients = tmp;
     }
@@ -64,7 +40,7 @@ void create_server(char *port)
             perror("select()");
         if (FD_ISSET(master_socket, &readfds))
             accept_socket(master_socket, myaddr, addrlen, &clients);
-        operations_on_sockets(&readfds, &clients, myaddr);
+        operations_on_sockets(&readfds, &clients);
     }
     close(master_socket);
     free_all_clients(clients);

@@ -7,11 +7,13 @@
 
 #include "server.h"
 
-void add_new_socket_to_array(clients_t **cls, int cfd)
+void add_new_socket_to_array(clients_t **cls, int cfd, struct sockaddr_in addr)
 {
     if ((*cls) == NULL) {
         clients_t *new_client = malloc(sizeof(clients_t));
-        new_client->socket = cfd;
+        new_client->ctrl_sock = cfd;
+        new_client->data_sock = 0;
+        new_client->addr = addr;
         new_client->next = NULL;
         (*cls) = new_client;
     } else {
@@ -19,7 +21,9 @@ void add_new_socket_to_array(clients_t **cls, int cfd)
         while (tmp->next != NULL)
             tmp = tmp->next;
         clients_t *new_client = malloc(sizeof(clients_t));
-        new_client->socket = cfd;
+        new_client->ctrl_sock = cfd;
+        new_client->data_sock = 0;
+        new_client->addr = addr;
         new_client->next = NULL;
         tmp->next = new_client;
     }
@@ -34,7 +38,7 @@ void accept_socket(int m_sock, struct sockaddr_in addr, int rl, clients_t **cl)
     int port_co = ntohs(addr.sin_port);
     printf("Connection from %s:%i\n", ip, port_co);
     write(cfd, "Hello World!!!\r\n", 16);
-    add_new_socket_to_array(cl, cfd);
+    add_new_socket_to_array(cl, cfd, addr);
 }
 
 static void clear_cl(clients_t **prev, clients_t **cls, clients_t **curr)
@@ -51,9 +55,9 @@ static void remove_client(clients_t **cls, int value)
     clients_t *prev = NULL;
     clients_t *curr = *cls;
     while (curr != NULL) {
-        if (curr->socket == value) {
+        if (curr->ctrl_sock == value) {
             clear_cl(&prev, cls, &curr);
-            close(curr->socket);
+            close(curr->ctrl_sock);
             free(curr);
             break;
         }
@@ -62,17 +66,17 @@ static void remove_client(clients_t **cls, int value)
     }
 }
 
-int check_closing_socket(clients_t **cls, int socket, struct sockaddr_in addr)
+int check_closing_socket(clients_t **cls, clients_t **client)
 {
     char buffer[1025];
     int valread;
-    if ((valread = read(socket, buffer, 1024)) == 0) {
-        remove_client(cls, socket);
+    if ((valread = read((*client)->ctrl_sock, buffer, 1024)) == 0) {
+        remove_client(cls, (*client)->ctrl_sock);
         return 1;
     } else {
         buffer[valread - 2] = '\0';
         if (strcmp(buffer, "PASV") == 0)
-            passv_command(socket, addr);
+            passv_command(client);
         if (strstr(buffer, "PORT")) {
             port_command();
         }
@@ -80,14 +84,14 @@ int check_closing_socket(clients_t **cls, int socket, struct sockaddr_in addr)
     return 0;
 }
 
-void operations_on_sockets(fd_set *fd, clients_t **cl, struct sockaddr_in adr)
+void operations_on_sockets(fd_set *fd, clients_t **cl)
 {
     clients_t *tmp = *cl;
     clients_t *prev = NULL;
     int res = 0;
     while (tmp != NULL) {
-        if (FD_ISSET(tmp->socket, fd))
-            res = check_closing_socket(cl, tmp->socket, adr);
+        if (FD_ISSET(tmp->ctrl_sock, fd))
+            res = check_closing_socket(cl, &tmp);
         if (res == 1) {
             tmp = *cl; res = 0; continue;
         }
@@ -107,7 +111,7 @@ void add_and_set_sockets(fd_set *fd, int *m_sd, int m_sock, clients_t *cls)
     *m_sd = m_sock;
     clients_t *tmp = cls;
     while (tmp != NULL) {
-        sd = tmp->socket;
+        sd = tmp->ctrl_sock;
         if (sd > 0)
             FD_SET(sd, fd);
         if (sd > *m_sd)
