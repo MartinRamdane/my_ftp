@@ -77,9 +77,8 @@ int check_closing_socket(clients_t **cls, clients_t **client)
         buffer[valread - 2] = '\0';
         if (strcmp(buffer, "PASV") == 0)
             passv_command(client);
-        if (strstr(buffer, "PORT")) {
-            port_command();
-        }
+        if (strstr(buffer, "RETR"))
+            retr_command(client, buffer);
     }
     return 0;
 }

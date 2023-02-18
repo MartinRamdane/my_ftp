@@ -35,8 +35,9 @@ void accept_data_socket(clients_t **client, struct sockaddr_in addr)
         exit(EXIT_FAILURE);
     char *ip = inet_ntoa(addr.sin_addr);
     int port_co = ntohs(addr.sin_port);
-    printf("Connection from %s:%i for PASV mode\n", ip, port_co);
+    printf("Connection from %s:%i\n", ip, port_co);
     write(cfd, "Hello Data Socket !\r\n", 21);
+    (*client)->data_sock = cfd;
 }
 
 void passv_command(clients_t **client)
@@ -51,7 +52,6 @@ void passv_command(clients_t **client)
     int len = sizeof(addr); struct sockaddr *tmp = (struct sockaddr *)&addr;
     getsockname((*client)->data_sock, tmp, (socklen_t*)&len);
     int port = ntohs(addr.sin_port);
-    // printf("port = %d\n", port);
     pasv_reply_code((*client), port, ip);
     listen((*client)->data_sock, 1);
     accept_data_socket(client, addr);

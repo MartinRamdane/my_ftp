@@ -17,6 +17,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define MAX_CLIENTS 100
 
@@ -31,5 +34,5 @@ void create_server(char *port);
 void accept_socket(int m_sock, struct sockaddr_in addr, int rl, clients_t **cl);
 void operations_on_sockets(fd_set *fd, clients_t **cl);
 void add_and_set_sockets(fd_set *fd, int *m_sd, int m_sock, clients_t *cls);
-void port_command(void);
 void passv_command(clients_t **client);
+void retr_command(clients_t **client, char *line);

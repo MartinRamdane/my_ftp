@@ -7,11 +7,6 @@
 
 #include "server.h"
 
-void port_command(void)
-{
-    ;
-}
-
 static void free_all_clients(clients_t *clients)
 {
     while (clients != NULL) {
