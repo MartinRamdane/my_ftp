@@ -43,11 +43,9 @@ void accept_socket(int m_sock, struct sockaddr_in addr, int rl, clients_t **cl)
 
 int check_closing_socket(clients_t **cls, clients_t **client)
 {
-    char buffer[1025];
-    int valread;
+    char buffer[1025]; int valread;
     if ((valread = read((*client)->ctrl_sock, buffer, 1024)) == 0) {
-        remove_client(cls, (*client)->ctrl_sock);
-        return 1;
+        remove_client(cls, (*client)->ctrl_sock); return 1;
     } else {
         buffer[valread - 2] = '\0';
         if (strcmp(buffer, "PASV") == 0)
@@ -61,6 +59,8 @@ int check_closing_socket(clients_t **cls, clients_t **client)
         if (strcmp(buffer, "QUIT") == 0) {
             quit_command(cls, client); return 1;
         }
+        if (strcmp(buffer, "NOOP") == 0)
+            write((*client)->ctrl_sock, "200 Command okay.\r\n", 20);
     }
     return 0;
 }
