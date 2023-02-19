@@ -41,31 +41,6 @@ void accept_socket(int m_sock, struct sockaddr_in addr, int rl, clients_t **cl)
     add_new_socket_to_array(cl, cfd, addr);
 }
 
-static void clear_cl(clients_t **prev, clients_t **cls, clients_t **curr)
-{
-    if (*prev == NULL) {
-        *cls = (*curr)->next;
-    } else {
-        (*prev)->next = (*curr)->next;
-    }
-}
-
-static void remove_client(clients_t **cls, int value)
-{
-    clients_t *prev = NULL;
-    clients_t *curr = *cls;
-    while (curr != NULL) {
-        if (curr->ctrl_sock == value) {
-            clear_cl(&prev, cls, &curr);
-            close(curr->ctrl_sock);
-            free(curr);
-            break;
-        }
-        prev = curr;
-        curr = curr->next;
-    }
-}
-
 int check_closing_socket(clients_t **cls, clients_t **client)
 {
     char buffer[1025];
@@ -83,6 +58,9 @@ int check_closing_socket(clients_t **cls, clients_t **client)
             user_command(client, buffer);
         if (strstr(buffer, "PASS"))
             passwd_command(client, buffer);
+        if (strcmp(buffer, "QUIT") == 0) {
+            quit_command(cls, client); return 1;
+        }
     }
     return 0;
 }

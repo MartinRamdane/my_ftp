@@ -40,3 +40,5 @@ void passv_command(clients_t **client);
 void retr_command(clients_t **client, char *line);
 void user_command(clients_t **client, char *line);
 void passwd_command(clients_t **client, char *line);
+void quit_command(clients_t **cls, clients_t **client);
+void remove_client(clients_t **cls, int value);
