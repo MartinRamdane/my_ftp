@@ -26,6 +26,8 @@
 typedef struct clients {
     int ctrl_sock;
     int data_sock;
+    int user;
+    int passwd;
     struct sockaddr_in addr;
     struct clients *next;
 } clients_t;
@@ -36,3 +38,5 @@ void operations_on_sockets(fd_set *fd, clients_t **cl);
 void add_and_set_sockets(fd_set *fd, int *m_sd, int m_sock, clients_t *cls);
 void passv_command(clients_t **client);
 void retr_command(clients_t **client, char *line);
+void user_command(clients_t **client, char *line);
+void passwd_command(clients_t **client, char *line);
