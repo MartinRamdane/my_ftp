@@ -23,8 +23,10 @@ int commands(clients_t **cls, clients_t **client, char *buffer)
     }
     if (strcmp(buffer, "NOOP") == 0)
         write((*client)->ctrl_sock, "200 Command okay.\r\n", 20);
-    if (strstr(buffer, "PWD"))
+    if (strcmp(buffer, "PWD") == 0)
         pwd_command(client);
+    if (strstr(buffer, "CWD"))
+        cwd_command(client, buffer);
     return 0;
 }
 

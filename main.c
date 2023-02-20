@@ -7,8 +7,6 @@
 
 #include "server.h"
 
-char *home_dir;
-
 void display_help(void)
 {
     printf("USAGE: ./myftp port path\n");
@@ -29,7 +27,7 @@ int main(int ac, char **av)
     }
     if (ac != 3)
         return 84;
-    home_dir = av[2];
+    chdir(av[2]);
     create_server(av[1]);
     return 0;
 }

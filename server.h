@@ -28,7 +28,6 @@ typedef struct clients {
     int data_sock;
     int user;
     int passwd;
-    char *dir;
     struct sockaddr_in addr;
     struct clients *next;
 } clients_t;
@@ -44,3 +43,4 @@ void passwd_command(clients_t **client, char *line);
 void quit_command(clients_t **cls, clients_t **client);
 void remove_client(clients_t **cls, int value);
 void pwd_command(clients_t **client);
+void cwd_command(clients_t **client, char *line);

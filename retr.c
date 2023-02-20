@@ -9,7 +9,6 @@
 
 char *get_file(char *path)
 {
-    printf("path: %s\n", path);
     int fd = open(path, O_RDONLY);
     struct stat s;
     stat(path, &s);
@@ -41,16 +40,9 @@ void retr_command(clients_t **client, char *line)
     else {
         write((*client)->ctrl_sock, "Error\r\n", 7); return;
     }
-    int len = strlen((*client)->dir) + strlen(path);
-    len += (path[0] != '/' ? 1 : 0);
-    char *path_dir = malloc(sizeof(char) * (len + 1));
-    strcpy(path_dir, (*client)->dir);
-    if (path[0] != '/')
-        path_dir = strcat(path_dir, "/");
-    path_dir = strcat(path_dir, path); char *file = get_file(path_dir);
+    char *file = get_file(path);
     if (!file) {
         write((*client)->ctrl_sock, "Error\r\n", 7); return;
     }
     print_msg(client, file);
-    free(path_dir);
 }
