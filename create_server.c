@@ -7,6 +7,8 @@
 
 #include "server.h"
 
+extern char *home_dir;
+
 void add_new_socket_to_array(clients_t **cls, int cfd, struct sockaddr_in addr)
 {
     if ((*cls) == NULL) {
@@ -14,6 +16,7 @@ void add_new_socket_to_array(clients_t **cls, int cfd, struct sockaddr_in addr)
         new_client->ctrl_sock = cfd;
         new_client->data_sock = 0; new_client->user = 0;
         new_client->passwd = 0; new_client->addr = addr;
+        new_client->dir = home_dir;
         new_client->next = NULL;
         (*cls) = new_client;
     } else {
@@ -24,6 +27,7 @@ void add_new_socket_to_array(clients_t **cls, int cfd, struct sockaddr_in addr)
         new_client->ctrl_sock = cfd;
         new_client->data_sock = 0; new_client->user = 0;
         new_client->passwd = 0; new_client->addr = addr;
+        new_client->dir = home_dir;
         new_client->next = NULL;
         tmp->next = new_client;
     }

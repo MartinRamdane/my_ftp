@@ -36,7 +36,6 @@ void accept_data_socket(clients_t **client, struct sockaddr_in addr)
     char *ip = inet_ntoa(addr.sin_addr);
     int port_co = ntohs(addr.sin_port);
     printf("Connection from %s:%i\n", ip, port_co);
-    write(cfd, "Hello Data Socket !\r\n", 21);
     (*client)->data_sock = cfd;
 }
 
