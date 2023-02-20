@@ -45,49 +45,6 @@ void accept_socket(int m_sock, struct sockaddr_in addr, int rl, clients_t **cl)
     add_new_socket_to_array(cl, cfd, addr);
 }
 
-int check_closing_socket(clients_t **cls, clients_t **client)
-{
-    char buffer[1025]; int valread;
-    if ((valread = read((*client)->ctrl_sock, buffer, 1024)) == 0) {
-        remove_client(cls, (*client)->ctrl_sock); return 1;
-    } else {
-        buffer[valread - 2] = '\0';
-        if (strcmp(buffer, "PASV") == 0)
-            passv_command(client);
-        if (strstr(buffer, "RETR"))
-            retr_command(client, buffer);
-        if (strstr(buffer, "USER"))
-            user_command(client, buffer);
-        if (strstr(buffer, "PASS"))
-            passwd_command(client, buffer);
-        if (strcmp(buffer, "QUIT") == 0) {
-            quit_command(cls, client); return 1;
-        }
-        if (strcmp(buffer, "NOOP") == 0)
-            write((*client)->ctrl_sock, "200 Command okay.\r\n", 20);
-    }
-    return 0;
-}
-
-void operations_on_sockets(fd_set *fd, clients_t **cl)
-{
-    clients_t *tmp = *cl;
-    clients_t *prev = NULL;
-    int res = 0;
-    while (tmp != NULL) {
-        if (FD_ISSET(tmp->ctrl_sock, fd))
-            res = check_closing_socket(cl, &tmp);
-        if (res == 1) {
-            tmp = *cl; res = 0; continue;
-        }
-        prev = tmp;
-        tmp = tmp->next;
-        if (prev != NULL && prev->next == NULL) {
-            break;
-        }
-    }
-}
-
 void add_and_set_sockets(fd_set *fd, int *m_sd, int m_sock, clients_t *cls)
 {
     int sd;
