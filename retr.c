@@ -34,6 +34,9 @@ void print_msg(clients_t **client, char *file)
 
 void retr_command(clients_t **client, char *line)
 {
+    if ((*client)->passwd != 1) {
+        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+    }
     char *path = strchr(line, ' ');
     if (path != NULL)
         path++;

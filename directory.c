@@ -9,6 +9,9 @@
 
 void pwd_command(clients_t **client)
 {
+    if ((*client)->passwd != 1) {
+        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+    }
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         write((*client)->ctrl_sock, "257 \"", 6);
@@ -20,6 +23,9 @@ void pwd_command(clients_t **client)
 
 void cwd_command(clients_t **client, char *line)
 {
+    if ((*client)->passwd != 1) {
+        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+    }
     char *dir = strchr(line, ' ');
     if (dir != NULL)
         dir++;
@@ -36,6 +42,9 @@ void cwd_command(clients_t **client, char *line)
 
 void cdup_command(clients_t **client)
 {
+    if ((*client)->passwd != 1) {
+        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+    }
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         chdir("../");
@@ -46,6 +55,9 @@ void cdup_command(clients_t **client)
 
 void dele_command(clients_t **client, char *line)
 {
+    if ((*client)->passwd != 1) {
+        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+    }
     char *file = strchr(line, ' ');
     if (file != NULL)
         file++;

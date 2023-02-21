@@ -41,6 +41,9 @@ void accept_data_socket(clients_t **client, struct sockaddr_in addr)
 
 void passv_command(clients_t **client)
 {
+    if ((*client)->passwd != 1) {
+        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+    }
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     char *ip = inet_ntoa((*client)->addr.sin_addr);
