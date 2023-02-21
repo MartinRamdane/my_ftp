@@ -17,7 +17,8 @@ void user_command(clients_t **client, char *line)
     if (username != NULL)
         username++;
     else {
-        write((*client)->ctrl_sock, "Error\r\n", 7);
+        write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
+        write((*client)->ctrl_sock, "or argument.\r\n", 14);
         return;
     }
     if (strcmp(username, "Anonymous") == 0) {
@@ -25,7 +26,7 @@ void user_command(clients_t **client, char *line)
         write((*client)->ctrl_sock, "need password.\r\n", 16);
         (*client)->user = 1;
     } else
-        write((*client)->ctrl_sock, "Error\r\n", 7);
+        write((*client)->ctrl_sock, "530 Not logged in.\r\n", 20);
 }
 
 void passwd_command(clients_t **client, char *line)
@@ -42,14 +43,14 @@ void passwd_command(clients_t **client, char *line)
     if (passwd != NULL)
         passwd++;
     else {
-        write((*client)->ctrl_sock, "Error\r\n", 7);
-        return;
+        write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
+        write((*client)->ctrl_sock, "or argument.\r\n", 14); return;
     }
     if (strcmp(passwd, "") == 0) {
         write((*client)->ctrl_sock, "230 User logged in, proceed.\r\n", 30);
         (*client)->passwd = 1;
     } else
-        write((*client)->ctrl_sock, "Error\r\n", 7);
+        write((*client)->ctrl_sock, "530 Not logged in.\r\n", 20);
 }
 
 void quit_command(clients_t **cls, clients_t **client)

@@ -23,7 +23,8 @@ void print_msg(clients_t **client, char *file)
     write((*client)->ctrl_sock, "150 File status okay;", 21);
     write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
     if ((*client)->data_sock == 0) {
-        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+        write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
+        return;
     }
     write((*client)->data_sock, file, strlen(file));
     write((*client)->data_sock, "\r\n", 2); free(file);
@@ -34,17 +35,20 @@ void print_msg(clients_t **client, char *file)
 void retr_command(clients_t **client, char *line)
 {
     if ((*client)->passwd != 1) {
-        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+        write((*client)->ctrl_sock, "530 Not logged in.\r\n", 20); return;
     }
     char *path = strchr(line, ' ');
     if (path != NULL)
         path++;
     else {
-        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+        write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
+        write((*client)->ctrl_sock, "or argument.\r\n", 14);
+        return;
     }
     char *file = get_file(path);
     if (!file) {
-        write((*client)->ctrl_sock, "Error\r\n", 7); return;
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22); return;
     }
     print_msg(client, file);
 }
