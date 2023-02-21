@@ -33,3 +33,13 @@ void cwd_command(clients_t **client, char *line)
     } else
         write((*client)->ctrl_sock, "Error\r\n", 7);
 }
+
+void cdup_command(clients_t **client)
+{
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        chdir("../");
+        write((*client)->ctrl_sock, "200 Command okay.\r\n", 19);
+    } else
+        write((*client)->ctrl_sock, "Error\r\n", 7);
+}
