@@ -56,6 +56,5 @@ void quit_command(clients_t **cls, clients_t **client)
 {
     write((*client)->ctrl_sock, "221 Service closing control ", 29);
     write((*client)->ctrl_sock, "connection.\r\n", 13);
-    write((*client)->ctrl_sock, "Logged out if appropriate.\r\n", 28);
     remove_client(cls, (*client)->ctrl_sock);
 }
