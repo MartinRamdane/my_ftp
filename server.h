@@ -45,3 +45,4 @@ void remove_client(clients_t **cls, int value);
 void pwd_command(clients_t **client);
 void cwd_command(clients_t **client, char *line);
 void cdup_command(clients_t **client);
+void dele_command(clients_t **client, char *line);

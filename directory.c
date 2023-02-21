@@ -43,3 +43,20 @@ void cdup_command(clients_t **client)
     } else
         write((*client)->ctrl_sock, "Error\r\n", 7);
 }
+
+void dele_command(clients_t **client, char *line)
+{
+    char *file = strchr(line, ' ');
+    if (file != NULL)
+        file++;
+    else {
+        write((*client)->ctrl_sock, "Error\r\n", 7);
+        return;
+    }
+    if (remove(file) == 0) {
+        write((*client)->ctrl_sock, "250 Requested file action okay, ", 32);
+        write((*client)->ctrl_sock, "completed.\r\n", 12);
+    } else {
+        write((*client)->ctrl_sock, "Error\r\n", 7);
+    }
+}

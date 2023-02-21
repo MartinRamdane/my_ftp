@@ -7,6 +7,20 @@
 
 #include "server.h"
 
+void more_commands(clients_t **client, char *buffer)
+{
+    if (strcmp(buffer, "NOOP") == 0)
+        write((*client)->ctrl_sock, "200 Command okay.\r\n", 20);
+    if (strcmp(buffer, "PWD") == 0)
+        pwd_command(client);
+    if (strstr(buffer, "CWD"))
+        cwd_command(client, buffer);
+    if (strcmp(buffer, "CDUP") == 0)
+        cdup_command(client);
+    if (strstr(buffer, "DELE"))
+        dele_command(client, buffer);
+}
+
 int commands(clients_t **cls, clients_t **client, char *buffer)
 {
     if (strcmp(buffer, "PASV") == 0)
@@ -18,16 +32,10 @@ int commands(clients_t **cls, clients_t **client, char *buffer)
     if (strstr(buffer, "PASS"))
         passwd_command(client, buffer);
     if (strcmp(buffer, "QUIT") == 0) {
-        quit_command(cls, client); return 1;
+        quit_command(cls, client);
+        return 1;
     }
-    if (strcmp(buffer, "NOOP") == 0)
-        write((*client)->ctrl_sock, "200 Command okay.\r\n", 20);
-    if (strcmp(buffer, "PWD") == 0)
-        pwd_command(client);
-    if (strstr(buffer, "CWD"))
-        cwd_command(client, buffer);
-    if (strcmp(buffer, "CDUP") == 0)
-        cdup_command(client);
+    more_commands(client, buffer);
     return 0;
 }
 
