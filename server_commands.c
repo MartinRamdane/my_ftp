@@ -12,6 +12,9 @@ int commands_for_data(clients_t **client, char *buffer)
     if (strstr(buffer, "RETR")) {
         retr_command(client, buffer); return 1;
     }
+    if (strstr(buffer, "STOR")) {
+        stor_command(client, buffer); return 1;
+    }
     if (strstr(buffer, "LIST")) {
         list_command(client, buffer); return 1;
     }
