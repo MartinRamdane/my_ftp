@@ -24,6 +24,9 @@ int more_commands(clients_t **client, char *buffer)
     if (strstr(buffer, "DELE")) {
         dele_command(client, buffer); return 1;
     }
+    if (strcmp(buffer, "HELP") == 0) {
+        help_command(client); return 1;
+    }
     return 0;
 }
 

@@ -27,7 +27,8 @@ int main(int ac, char **av)
     }
     if (ac != 3)
         return 84;
-    chdir(av[2]);
+    if (chdir(av[2]) != 0)
+        return 84;
     create_server(av[1]);
     return 0;
 }
