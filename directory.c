@@ -30,16 +30,16 @@ void cwd_command(clients_t **client, char *line)
     if (dir != NULL)
         dir++;
     else {
-        write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
-        write((*client)->ctrl_sock, "or argument.\r\n", 14);
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
         return;
     }
     if (chdir(dir) == 0) {
         write((*client)->ctrl_sock, "250 Requested file action okay, ", 32);
         write((*client)->ctrl_sock, "completed.\r\n", 12);
     } else {
-        write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
-        write((*client)->ctrl_sock, "or argument.\r\n", 14);
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
     }
 }
 

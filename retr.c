@@ -27,7 +27,7 @@ void print_msg(clients_t **client, char *file)
         return;
     }
     write((*client)->data_sock, file, strlen(file));
-    write((*client)->data_sock, "\r\n", 2); free(file);
+    free(file);
     close((*client)->data_sock);
     write((*client)->ctrl_sock, "226 Closing data connection.\r\n", 30);
 }
