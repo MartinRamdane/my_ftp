@@ -7,11 +7,19 @@
 
 #include "server.h"
 
+int commands_for_data(clients_t **client, char *buffer)
+{
+    if (strstr(buffer, "RETR")) {
+        retr_command(client, buffer); return 1;
+    }
+    if (strstr(buffer, "LIST")) {
+        list_command(client, buffer); return 1;
+    }
+    return 0;
+}
+
 int more_commands(clients_t **client, char *buffer)
 {
-    if (strcmp(buffer, "NOOP") == 0) {
-        write((*client)->ctrl_sock, "200 Command okay.\r\n", 20); return 1;
-    }
     if (strcmp(buffer, "PWD") == 0) {
         pwd_command(client); return 1;
     }
@@ -27,6 +35,8 @@ int more_commands(clients_t **client, char *buffer)
     if (strcmp(buffer, "HELP") == 0) {
         help_command(client); return 1;
     }
+    if (commands_for_data(client, buffer) == 1)
+        return 1;
     return 0;
 }
 
@@ -34,9 +44,6 @@ int commands(clients_t **cls, clients_t **client, char *buffer)
 {
     if (strcmp(buffer, "PASV") == 0) {
         passv_command(client); return 0;
-    }
-    if (strstr(buffer, "RETR")) {
-        retr_command(client, buffer); return 0;
     }
     if (strstr(buffer, "USER")) {
         user_command(client, buffer); return 0;
@@ -46,6 +53,9 @@ int commands(clients_t **cls, clients_t **client, char *buffer)
     }
     if (strcmp(buffer, "QUIT") == 0) {
         quit_command(cls, client); return 1;
+    }
+    if (strcmp(buffer, "NOOP") == 0) {
+        write((*client)->ctrl_sock, "200 Command okay.\r\n", 20); return 0;
     }
     if (more_commands(client, buffer) == 1)
         return 0;

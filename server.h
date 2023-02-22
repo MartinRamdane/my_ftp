@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 #define MAX_CLIENTS 100
 
@@ -47,3 +48,4 @@ void cwd_command(clients_t **client, char *line);
 void cdup_command(clients_t **client);
 void dele_command(clients_t **client, char *line);
 void help_command(clients_t **client);
+void list_command(clients_t **client, char *line);
