@@ -49,3 +49,4 @@ void cdup_command(clients_t **client);
 void dele_command(clients_t **client, char *line);
 void help_command(clients_t **client);
 void list_command(clients_t **client, char *line);
+void port_command(clients_t **client, char *line);

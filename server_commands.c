@@ -15,6 +15,9 @@ int commands_for_data(clients_t **client, char *buffer)
     if (strstr(buffer, "LIST")) {
         list_command(client, buffer); return 1;
     }
+    if (strstr(buffer, "PORT")) {
+        port_command(client, buffer); return 1;
+    }
     return 0;
 }
 
@@ -55,7 +58,7 @@ int commands(clients_t **cls, clients_t **client, char *buffer)
         quit_command(cls, client); return 1;
     }
     if (strcmp(buffer, "NOOP") == 0) {
-        write((*client)->ctrl_sock, "200 Command okay.\r\n", 20); return 0;
+        write((*client)->ctrl_sock, "200 Command okay.\r\n", 19); return 0;
     }
     if (more_commands(client, buffer) == 1)
         return 0;
