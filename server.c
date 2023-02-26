@@ -33,6 +33,8 @@ void remove_client(clients_t **cls, int value)
     while (curr != NULL) {
         if (curr->ctrl_sock == value) {
             clear_cl(&prev, cls, &curr);
+            free(curr->buffer);
+            free(curr->user);
             close(curr->ctrl_sock);
             free(curr);
             break;

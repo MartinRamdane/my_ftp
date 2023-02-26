@@ -72,13 +72,24 @@ int commands(clients_t **cls, clients_t **client, char *buffer)
 
 int check_commands_socket(clients_t **cls, clients_t **client)
 {
-    char buffer[1025]; int valread;
+    int valread; char buffer[1025] = {0};
     if ((valread = read((*client)->ctrl_sock, buffer, 1024)) == 0) {
         remove_client(cls, (*client)->ctrl_sock); return 1;
     } else {
-        buffer[valread - 2] = '\0';
-        if (commands(cls, client, buffer) == 1)
+        if ((*client)->buffer[0] != '\0')
+            strcat((*client)->buffer, buffer);
+        else
+            strcpy((*client)->buffer, buffer);
+    }
+    if ((*client)->buffer[strlen((*client)->buffer) - 1] == '\n' &&
+        (*client)->buffer[strlen((*client)->buffer) - 2] == '\r') {
+
+        (*client)->buffer[strlen(((*client)->buffer)) - 2] = '\0';
+        if (commands(cls, client, (*client)->buffer) == 1)
             return 1;
+        free((*client)->buffer);
+        (*client)->buffer = malloc(sizeof(char) * 1025);
+        memset((*client)->buffer, 0, 1024);
     }
     return 0;
 }

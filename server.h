@@ -29,6 +29,7 @@ typedef struct clients {
     int data_sock;
     char *user;
     int passwd;
+    char *buffer;
     struct sockaddr_in addr;
     struct clients *next;
 } clients_t;
