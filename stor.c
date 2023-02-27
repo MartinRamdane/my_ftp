@@ -11,7 +11,7 @@ void upload_file(clients_t **client, char *path)
 {
     FILE *fp = fopen (path, "w");
     char buffer[2048];
-    read((*client)->data_sock, buffer,2048);
+    read((*client)->data_sock, buffer, 2048);
     fputs(buffer, fp);
     fclose(fp);
 }
