@@ -7,8 +7,13 @@
 
 #include "server.h"
 
-void pwd_command(clients_t **client)
+void pwd_command(clients_t **client, char *line)
 {
+    if (strcmp(line, "PWD") != 0) {
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
+        return;
+    }
     if ((*client)->passwd != 1) {
         write((*client)->ctrl_sock, "530 Not logged in.\r\n", 20); return;
     }
@@ -43,8 +48,13 @@ void cwd_command(clients_t **client, char *line)
     }
 }
 
-void cdup_command(clients_t **client)
+void cdup_command(clients_t **client, char *line)
 {
+    if (strcmp(line, "CDUP") != 0) {
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
+        return;
+    }
     if ((*client)->passwd != 1) {
         write((*client)->ctrl_sock, "530 Not logged in.\r\n", 20); return;
     }

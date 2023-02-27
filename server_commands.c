@@ -26,14 +26,14 @@ int commands_for_data(clients_t **client, char *buffer)
 
 int more_commands(clients_t **client, char *buffer)
 {
-    if (strcmp(buffer, "PWD") == 0) {
-        pwd_command(client); return 1;
+    if (strstr(buffer, "PWD")) {
+        pwd_command(client, buffer); return 1;
     }
     if (strstr(buffer, "CWD")) {
         cwd_command(client, buffer); return 1;
     }
-    if (strcmp(buffer, "CDUP") == 0) {
-        cdup_command(client); return 1;
+    if (strstr(buffer, "CDUP")) {
+        cdup_command(client, buffer); return 1;
     }
     if (strstr(buffer, "DELE")) {
         dele_command(client, buffer); return 1;
