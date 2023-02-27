@@ -7,14 +7,20 @@
 
 #include "server.h"
 
-void upload_file(clients_t **client, char *path)
+int upload_file(clients_t **client, char *path)
 {
     FILE *fp = fopen (path, "w");
+    if (fp == NULL) {
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
+        return 1;
+    }
     char buffer[2048];
     read((*client)->data_sock, buffer, 2048);
     fputs(buffer, fp);
     fputs("\n", fp);
     fclose(fp);
+    return 0;
 }
 
 void stor_command(clients_t **client, char *line)
@@ -27,8 +33,7 @@ void stor_command(clients_t **client, char *line)
         path++;
     else {
         write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
-        write((*client)->ctrl_sock, "or argument.\r\n", 14);
-        return;
+        write((*client)->ctrl_sock, "or argument.\r\n", 14); return;
     }
     write((*client)->ctrl_sock, "150 File status okay;", 21);
     write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
@@ -36,7 +41,8 @@ void stor_command(clients_t **client, char *line)
         write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
         return;
     }
-    upload_file(client, path);
+    if (upload_file(client, path) == 1)
+        return;
     close((*client)->data_sock);
     write((*client)->ctrl_sock, "226 Closing data connection.\r\n", 30);
 }

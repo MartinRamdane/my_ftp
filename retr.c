@@ -7,9 +7,14 @@
 
 #include "server.h"
 
-char *get_file(char *path)
+char *get_file(clients_t **client, char *path)
 {
     int fd = open(path, O_RDONLY);
+    if (fd == -1) {
+        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
+        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
+        return NULL;
+    }
     struct stat s;
     stat(path, &s);
     char *buffer = malloc(sizeof(char) * (s.st_size + 1));
@@ -45,7 +50,7 @@ void retr_command(clients_t **client, char *line)
         write((*client)->ctrl_sock, "or argument.\r\n", 14);
         return;
     }
-    char *file = get_file(path);
+    char *file = get_file(client, path);
     if (!file) {
         write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
         write((*client)->ctrl_sock, " file unavailable...\r\n", 22); return;
