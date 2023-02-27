@@ -13,6 +13,7 @@ void upload_file(clients_t **client, char *path)
     char buffer[2048];
     read((*client)->data_sock, buffer, 2048);
     fputs(buffer, fp);
+    fputs("\n", fp);
     fclose(fp);
 }
 
