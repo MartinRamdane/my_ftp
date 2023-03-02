@@ -16,7 +16,8 @@ int upload_file(clients_t **client, char *path)
         return 1;
     }
     char buffer[2048];
-    read((*client)->data_sock, buffer, 2048);
+    int valread = read((*client)->data_sock, buffer, 2048);
+    buffer[valread - 2] = '\0';
     fputs(buffer, fp);
     fputs("\n", fp);
     fclose(fp);
