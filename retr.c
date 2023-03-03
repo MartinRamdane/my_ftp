@@ -11,8 +11,8 @@ char *get_file(clients_t **client, char *path)
 {
     int fd = open(path, O_RDONLY);
     if (fd == -1) {
-        write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
-        write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
+        write((*client)->ctrl_sock, "450 Requested file action not taken", 35);
+        write((*client)->ctrl_sock, "\r\n", 2);
         return NULL;
     }
     struct stat s;
