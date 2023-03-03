@@ -9,17 +9,18 @@
 
 int upload_file(clients_t **client, char *path)
 {
-    FILE *fp = fopen (path, "w");
-    if (fp == NULL) {
+    int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd == -1) {
         write((*client)->ctrl_sock, "550 Requested action not taken;", 31);
         write((*client)->ctrl_sock, " file unavailable...\r\n", 22);
         return 1;
     }
     char buffer[2048];
-    int valread = read((*client)->data_sock, buffer, 2048);
-    buffer[valread - 2] = '\0';
-    fputs(buffer, fp);
-    fclose(fp);
+    int valread;
+    while ((valread = read((*client)->data_sock, buffer, 2048)) > 0) {
+        write(fd, buffer, valread);
+    }
+    close(fd);
     return 0;
 }
 
