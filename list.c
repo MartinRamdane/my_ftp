@@ -30,16 +30,14 @@ void close_co(clients_t **client)
     write((*client)->ctrl_sock, "226 Closing data connection.\r\n", 30);
 }
 
-int check_co(clients_t **client, int ret)
+int check_co(clients_t **client)
 {
     if ((*client)->passwd != 1) {
         write((*client)->ctrl_sock, "530 Not logged in.\r\n", 20);
         return 1;
     }
-    if (ret != 0) {
-        write((*client)->ctrl_sock, "150 File status okay;", 21);
-        write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
-    }
+    write((*client)->ctrl_sock, "150 File status okay;", 21);
+    write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
     if ((*client)->data_sock == 0) {
         write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
         return 1;
@@ -49,7 +47,7 @@ int check_co(clients_t **client, int ret)
 
 void list_command(clients_t **client, char *line)
 {
-    if (check_co(client, strcmp(line, "LIST")) == 1)
+    if (check_co(client) == 1)
         return;
     if (strcmp(line, "LIST") == 0) {
         list_in_dir(client, ".");
