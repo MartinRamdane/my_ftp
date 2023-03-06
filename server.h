@@ -30,7 +30,9 @@ typedef struct clients {
     char *user;
     int passwd;
     char *buffer;
+    int to_connect;
     struct sockaddr_in addr;
+    struct sockaddr_in addr_data;
     struct clients *next;
 } clients_t;
 

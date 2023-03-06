@@ -10,12 +10,10 @@
 void create_sock(clients_t **client, char *ip, int port)
 {
     (*client)->data_sock = socket(AF_INET, SOCK_STREAM, 0);
-    struct sockaddr_in client_addr;
-    client_addr.sin_family = AF_INET;
+    (*client)->addr_data.sin_family = AF_INET;
     inet_addr(ip);
-    client_addr.sin_port = htons(port);
-    connect((*client)->data_sock, (struct sockaddr *)&client_addr
-    , sizeof(client_addr));
+    (*client)->addr_data.sin_port = htons(port);
+    (*client)->to_connect = 1;
     write((*client)->ctrl_sock, "200 Command okay.\r\n", 19);
 }
 

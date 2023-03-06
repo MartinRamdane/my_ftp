@@ -38,6 +38,11 @@ int check_co(clients_t **client)
     }
     write((*client)->ctrl_sock, "150 File status okay;", 21);
     write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
+    if ((*client)->to_connect) {
+        connect((*client)->data_sock, (struct sockaddr *)&(*client)->addr_data
+        , sizeof((*client)->addr_data));
+        (*client)->to_connect = 0;
+    }
     if ((*client)->data_sock == 0) {
         write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
         return 1;

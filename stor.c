@@ -24,6 +24,17 @@ int upload_file(clients_t **client, char *path)
     return 0;
 }
 
+void connect_to_data(clients_t **client)
+{
+    write((*client)->ctrl_sock, "150 File status okay;", 21);
+    write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
+    if ((*client)->to_connect) {
+        connect((*client)->data_sock, (struct sockaddr *)&(*client)->addr_data
+        , sizeof((*client)->addr_data));
+        (*client)->to_connect = 0;
+    }
+}
+
 void stor_command(clients_t **client, char *line)
 {
     if ((*client)->passwd != 1) {
@@ -36,8 +47,7 @@ void stor_command(clients_t **client, char *line)
         write((*client)->ctrl_sock, "501 Syntax error in parameters ", 31);
         write((*client)->ctrl_sock, "or argument.\r\n", 14); return;
     }
-    write((*client)->ctrl_sock, "150 File status okay;", 21);
-    write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
+    connect_to_data(client);
     if ((*client)->data_sock == 0) {
         write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
         return;
