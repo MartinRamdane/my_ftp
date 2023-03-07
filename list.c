@@ -7,7 +7,7 @@
 
 #include "server.h"
 
-void print_msg(clients_t **client)
+void print_msg_file(clients_t **client)
 {
     write((*client)->ctrl_sock, "150 File status okay;", 21);
     write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
@@ -20,7 +20,7 @@ int list_in_dir(clients_t **client, char *path)
     struct dirent *dir;
     fd = opendir(path);
     if (fd) {
-        print_msg(client);
+        print_msg_file(client);
         if ((*client)->data_sock == 0) {
             write((*client)->ctrl_sock, "425 Can't open data connection.\r\n"
             , 33); return 1;
