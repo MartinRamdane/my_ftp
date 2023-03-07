@@ -7,11 +7,13 @@
 
 #include "server.h"
 
-void print_msg_file(clients_t **client)
+int print_msg_file(clients_t **client)
 {
     write((*client)->ctrl_sock, "150 File status okay;", 21);
     write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
-    set_data_sock(client);
+    if (set_data_sock(client) == 1)
+        return 1;
+    return 0;
 }
 
 int list_in_dir(clients_t **client, char *path)
@@ -20,7 +22,7 @@ int list_in_dir(clients_t **client, char *path)
     struct dirent *dir;
     fd = opendir(path);
     if (fd) {
-        print_msg_file(client);
+        if (print_msg_file(client) == 1) return 1;
         if ((*client)->data_sock == 0) {
             write((*client)->ctrl_sock, "425 Can't open data connection.\r\n"
             , 33); return 1;
@@ -59,7 +61,7 @@ void list_command(clients_t **client, char *line)
     if (check_co(client) == 1)
         return;
     if (strcmp(line, "LIST") == 0) {
-        list_in_dir(client, ".");
+        res = list_in_dir(client, ".");
     } else {
         char *dir = strchr(line, ' ');
         if (dir != NULL)

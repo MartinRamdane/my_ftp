@@ -55,4 +55,4 @@ void help_command(clients_t **client);
 void list_command(clients_t **client, char *line);
 void port_command(clients_t **client, char *line);
 void stor_command(clients_t **client, char *line);
-void set_data_sock(clients_t **client);
+int set_data_sock(clients_t **client);

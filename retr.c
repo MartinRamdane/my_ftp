@@ -21,12 +21,12 @@ char *get_file(char *path)
     return buffer;
 }
 
-void set_data_sock(clients_t **client)
+int set_data_sock(clients_t **client)
 {
     if ((*client)->to_connect) {
         connect((*client)->data_sock, (struct sockaddr *)&(*client)->addr_data
         , sizeof((*client)->addr_data));
-        (*client)->to_connect = 0;
+        (*client)->to_connect = 0; return 0;
     }
     if ((*client)->to_accept) {
         int len = sizeof((*client)->addr_data);
@@ -35,15 +35,18 @@ void set_data_sock(clients_t **client)
         , (socklen_t*)&len);
         if ((*client)->data_sock < 0)
             exit(EXIT_FAILURE);
-        (*client)->to_accept = 0;
+        (*client)->to_accept = 0; return 0;
     }
+    write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
+    return 1;
 }
 
 void print_msg(clients_t **client, char *file)
 {
     write((*client)->ctrl_sock, "150 File status okay;", 21);
     write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
-    set_data_sock(client);
+    if (set_data_sock(client) == 1)
+        return;
     if ((*client)->data_sock == 0) {
         write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
         return;
