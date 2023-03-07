@@ -23,15 +23,29 @@ char *get_file(clients_t **client, char *path)
     return buffer;
 }
 
-void print_msg(clients_t **client, char *file)
+void set_data_sock(clients_t **client)
 {
-    write((*client)->ctrl_sock, "150 File status okay;", 21);
-    write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
     if ((*client)->to_connect) {
         connect((*client)->data_sock, (struct sockaddr *)&(*client)->addr_data
         , sizeof((*client)->addr_data));
         (*client)->to_connect = 0;
     }
+    if ((*client)->to_accept) {
+        int len = sizeof((*client)->addr_data);
+        struct sockaddr *tmp = (struct sockaddr *)&(*client)->addr_data;
+        (*client)->data_sock = accept((*client)->data_sock, tmp
+        , (socklen_t*)&len);
+        if ((*client)->data_sock < 0)
+            exit(EXIT_FAILURE);
+        (*client)->to_accept = 0;
+    }
+}
+
+void print_msg(clients_t **client, char *file)
+{
+    write((*client)->ctrl_sock, "150 File status okay;", 21);
+    write((*client)->ctrl_sock, " about to open data connection.\r\n", 33);
+    set_data_sock(client);
     if ((*client)->data_sock == 0) {
         write((*client)->ctrl_sock, "425 Can't open data connection.\r\n", 33);
         return;

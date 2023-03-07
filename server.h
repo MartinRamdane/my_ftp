@@ -31,6 +31,7 @@ typedef struct clients {
     int passwd;
     char *buffer;
     int to_connect;
+    int to_accept;
     struct sockaddr_in addr;
     struct sockaddr_in addr_data;
     struct clients *next;
@@ -54,3 +55,4 @@ void help_command(clients_t **client);
 void list_command(clients_t **client, char *line);
 void port_command(clients_t **client, char *line);
 void stor_command(clients_t **client, char *line);
+void set_data_sock(clients_t **client);

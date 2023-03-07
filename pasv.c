@@ -28,15 +28,8 @@ void pasv_reply_code(clients_t *client, int port, char *ip)
 
 void accept_data_socket(clients_t **client, struct sockaddr_in addr)
 {
-    int len = sizeof(addr);
-    struct sockaddr *tmp = (struct sockaddr *)&addr;
-    int cfd = accept((*client)->data_sock, tmp, (socklen_t*)&len);
-    if (cfd < 0)
-        exit(EXIT_FAILURE);
-    char *ip = inet_ntoa(addr.sin_addr);
-    int port_co = ntohs(addr.sin_port);
-    printf("Connection from %s:%i\n", ip, port_co);
-    (*client)->data_sock = cfd;
+    (*client)->addr_data = addr;
+    (*client)->to_accept = 1;
 }
 
 void passv_command(clients_t **client)

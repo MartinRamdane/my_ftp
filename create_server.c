@@ -16,7 +16,7 @@ void add_new_socket_to_array(clients_t **cls, int cfd, struct sockaddr_in addr)
         new_client->passwd = 0; new_client->addr = addr;
         new_client->buffer = malloc(sizeof(char) * 1025);
         memset(new_client->buffer, 0, 1024); new_client->next = NULL;
-        (*cls) = new_client;
+        new_client->to_accept = 0; (*cls) = new_client;
     } else {
         clients_t *tmp = (*cls);
         while (tmp->next != NULL)
@@ -27,7 +27,7 @@ void add_new_socket_to_array(clients_t **cls, int cfd, struct sockaddr_in addr)
         new_client->passwd = 0; new_client->addr = addr;
         new_client->buffer = malloc(sizeof(char) * 1025);
         memset(new_client->buffer, 0, 1024); new_client->next = NULL;
-        tmp->next = new_client;
+        new_client->to_accept = 0; tmp->next = new_client;
     }
 }
 
